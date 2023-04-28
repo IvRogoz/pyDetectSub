@@ -1,26 +1,20 @@
 import cv2
 import numpy as np
-import pytesseract
-import os
-import imutils
-import time
+import pytesseract as tess
+
 import sys
-import argparse
+
 from subprocess import PIPE, Popen
-from imutils import contours
-from scipy.linalg import norm
-from scipy import sum, average
-from PIL import Image
-from termcolor import colored
+
 from time import sleep
 # VARIABLES
-TEXT_TOP = 425
-TEXT_BOTTOM = 600
-TEXT_LEFT = 5
-TEXT_RIGHT = 700
+TEXT_TOP = 620
+TEXT_BOTTOM = 678
+TEXT_LEFT = 110
+TEXT_RIGHT = 1192
 SAMPLING_FRAME_COUNT = 60
 SCENE_CHANGE_PERCENTAGE = 50
-width, height = 450, 82
+width, height = 1082, 58
 count = 0
 count_sub_start = 0
 max_diff = 0
@@ -67,8 +61,13 @@ def cmdline(command):
 
 
 # Start Of Script
+print(tess.get_tesseract_version())
+print(tess.get_languages())
 
-cap = cv2.VideoCapture('test.mp4')
+cap = cv2.VideoCapture('test_zh.mp4')
+fps = cap.get(cv2.CAP_PROP_FPS)
+sleep_ms = int(np.round((1 / fps) * 1000))
+
 ret, current_frame = cap.read()
 previous_frame = current_frame
 height_frame, width_frame = current_frame.shape[:2]
@@ -105,6 +104,8 @@ while (cap.isOpened()):
     mse_diff = np.concatenate((image_data2, dst, old_image_data2), axis=0)
     cv2.imshow("Pixels", mse_diff)
 
+    boxes = tess.image_to_boxes(mse_diff)
+    print(len(boxes.splitlines()))
     # dst = create_blank(current_width, current_height)
 
     # Resize ROI old to proper dimensions as konvolutions eat up pixels
@@ -120,7 +121,7 @@ while (cap.isOpened()):
 
     # Increase Frame counter
     count = count + 1
-    sleep(40/1000)
+    sleep(sleep_ms*0.001)
 
     # Wait q key to quit
     if cv2.waitKey(1) & 0xFF == ord('q'):
