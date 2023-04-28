@@ -5,5 +5,8 @@ https://warped3.substack.com/p/simple-subtitle-extractor-using-opencv
 
 
 # Steps
-first 
-`pip install opencv-python`
+1. `python.exe -m pip install --upgrade pip`
+
+2. `pip install opencv-python`
+3. 
+
