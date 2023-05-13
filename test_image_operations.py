@@ -12,8 +12,8 @@ from scipy.linalg import norm
 from scipy import sum, average
 from PIL import Image
 from termcolor import colored
-
-#VARIABLES
+from time import sleep
+# VARIABLES
 TEXT_TOP = 425
 TEXT_BOTTOM = 600
 TEXT_LEFT = 5
@@ -31,6 +31,7 @@ ar_old = 1
 crWidth_old = 1
 count_contours = 0
 
+
 # Functions
 def create_blank(width, height):
     """Create new image(numpy array) filled with certain color in RGB"""
@@ -38,19 +39,23 @@ def create_blank(width, height):
     image = np.zeros((height, width), np.uint8)
 
     # Since OpenCV uses BGR, convert the color first
-    #color = tuple(reversed(rgb_color))
+    # color = tuple(reversed(rgb_color))
     # Fill image with color
     image[:] = 0
 
     return image
 
+
 def update_progress(progress, total):
     percents = 100 * (progress / float(total))
     filled_length = int(round(100 * progress / float(total)))
-    sys.stdout.write('\r[\033[1;34mINFO\033[0;0m] [\033[0;32m{0}\033[0;0m] Buffering:{1}%'.format('#'*(filled_length/5), filled_length))
+    sys.stdout.write(
+        '\r[\033[1;34mINFO\033[0;0m] [\033[0;32m{0}\033[0;0m] Buffering:{1}%'.format('#' * (filled_length / 5),
+                                                                                     filled_length))
     if progress == total:
         sys.stdout.write('\n')
     sys.stdout.flush()
+
 
 def cmdline(command):
     process = Popen(
@@ -63,7 +68,7 @@ def cmdline(command):
 
 # Start Of Script
 
-cap = cv2.VideoCapture('robocop.mp4')
+cap = cv2.VideoCapture('test.mp4')
 ret, current_frame = cap.read()
 previous_frame = current_frame
 height_frame, width_frame = current_frame.shape[:2]
@@ -75,44 +80,47 @@ roi_old = create_blank(width, height)
 dst = create_blank(width, height)
 
 # Play Video File
-while(cap.isOpened()):
+while (cap.isOpened()):
+    if not ret:
+        break
     # As subtitles are mostly fixed in position to reduce processing of Images we crop out the area where Subtitles should be   
     cropped_current = current_frame[TEXT_TOP:TEXT_BOTTOM, TEXT_LEFT:TEXT_RIGHT]
     cropper_previous = previous_frame[TEXT_TOP:TEXT_BOTTOM, TEXT_LEFT:TEXT_RIGHT]
     current_frame_gray = cv2.cvtColor(cropped_current, cv2.COLOR_BGR2GRAY)
-    previous_frame_gray = cv2.cvtColor(cropper_previous, cv2.COLOR_BGR2GRAY)    
+    previous_frame_gray = cv2.cvtColor(cropper_previous, cv2.COLOR_BGR2GRAY)
 
-    #Extract Subtitle Area from Cropped Image
+    # Extract Subtitle Area from Cropped Image
     roi = cropped_current
-           
+
     current_height, current_width = current_frame_gray.shape[:2]
 
     image_data = np.asarray(current_frame_gray)
     old_image_data = np.asarray(previous_frame_gray)
-    
+
     image_data2 = cv2.inRange(image_data, (150), (255))
     old_image_data2 = cv2.inRange(image_data, (150), (255))
 
-    dst = cv2.addWeighted(image_data2,0.3,old_image_data2,0.7,0)  
-    
+    dst = cv2.addWeighted(image_data2, 0.3, old_image_data2, 0.7, 0)
+
     mse_diff = np.concatenate((image_data2, dst, old_image_data2), axis=0)
     cv2.imshow("Pixels", mse_diff)
 
-    #dst = create_blank(current_width, current_height)
+    # dst = create_blank(current_width, current_height)
 
     # Resize ROI old to proper dimensions as konvolutions eat up pixels
-    #roi_old = cv2.resize(roi_old,(current_width, current_height), interpolation = cv2.INTER_LINEAR)
+    # roi_old = cv2.resize(roi_old,(current_width, current_height), interpolation = cv2.INTER_LINEAR)
 
     # Save current frame to old so it can be used in next iteration to detect changes
-    #roi_old = dst
+    # roi_old = dst
 
     # Show non edited Video feed
-    cv2.putText(current_frame,"Frame:"+str(count), (10,50), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
-    cv2.imshow('Movie',current_frame)   
-    #cv2.moveWindow('Movie', 0, 0)
+    cv2.putText(current_frame, "Frame:" + str(count), (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
+    cv2.imshow('Movie', current_frame)
+    # cv2.moveWindow('Movie', 0, 0)
 
     # Increase Frame counter
     count = count + 1
+    sleep(40/1000)
 
     # Wait q key to quit
     if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -123,3 +131,4 @@ while(cap.isOpened()):
     ret, current_frame = cap.read()
 
 cap.release()
+sys.exit(0)

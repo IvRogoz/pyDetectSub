@@ -12,6 +12,7 @@ from functools import reduce
 from termcolor import colored
 from subprocess import PIPE, Popen
 
+# pytesseract.pytesseract.tesseract_cmd = 'd:/Program Files/Tesseract-OCR/tesseract.exe'
 TESSERACT_LNG = "hrv"   # Default tesseract language to use. Change to eng for english or use cmd switch -l
 DETECTION_TYPE = 0      # Detection methods, 0 is total diff, 1 is more selective, cmd switch -d
 DETECTION_TYPE_TEXT = "detection based on Total percentage changed"
