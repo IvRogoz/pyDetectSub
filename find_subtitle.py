@@ -250,8 +250,8 @@ while(cap.isOpened()):
     t_old = thresh
 
     # Find Contours
-    cnts_org = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    cnts_org = refCnts[0] if imutils.is_cv2() else cnts_org[1]
+    cnts_org, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # cnts_org = if imutils.is_cv2() else cnts_org[1]
     cnts = sorted(cnts_org, key=cv2.contourArea, reverse=True)
 
     # loop over the contours
